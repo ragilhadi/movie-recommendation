@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import pickle
 from sklearn.metrics.pairwise import cosine_distances
+import nltk
+
+nltk.download('stopwords')
+nltk.download('punkt') 
 
 st.title('Recommendation System')
 
