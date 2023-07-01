@@ -7,23 +7,30 @@ import nltk
 nltk.download('stopwords')
 nltk.download('punkt') 
 
-st.title('Recommendation System')
-
 if 'model' not in st.session_state or 'data' not in st.session_state or 'matrix' not in st.session_state:
-    model = pickle.load(open('countvectorizer.pkl', 'rb'))
-    loaded_sparse_matrix = pickle.load(open('sparse_matrix.pkl', 'rb'))
+    model = pickle.load(open('model/countvectorizer.pkl', 'rb'))
+    loaded_sparse_matrix = pickle.load(open('model/sparse_matrix.pkl', 'rb'))
     st.session_state['model'] = model
     st.session_state['matrix'] = loaded_sparse_matrix
-    df = pd.read_csv('master.csv')
+    df = pd.read_csv('dataset/master.csv')
     st.session_state['data'] = df
 
 
-movies = st.selectbox(
-    'Pick movies you watch',
-    st.session_state['data']['Series_Title'].tolist()
-)
+st.title(':tv: Recommendation System')
+search, image = st.columns([3,1], gap='large')
 
-if st.button('Recommend Movies'):
+with search:
+    movies = st.selectbox(
+        'Pick movies you\'ve watched',
+        st.session_state['data']['Series_Title'].tolist()
+    )
+with image:
+    image_link = st.session_state['data'][st.session_state['data']['Series_Title'] == movies]['Poster_Link'].to_list()[0]
+    title_text = movies
+    st.image(image_link, width=70)
+
+if st.button('Recommend Me Movies'):
+    st.subheader('Movies you\'ll likes :heart:')
     idx = st.session_state['data'][st.session_state['data']['Series_Title'] == movies].index[0]
     content = st.session_state['data'].loc[idx, 'metadata-prep-lemm']
     watched = st.session_state['model'].transform([content])
@@ -38,6 +45,7 @@ if st.button('Recommend Movies'):
         with val:
             st.image(link, caption=title, width=150)
 
+    st.write('Dataset Detail')
     st.dataframe(st.session_state['data'].loc[rec_idx][['Series_Title', 'Genre', 'Director','metadata-prep-lemm']])
 else:
     st.write('Waiting')
